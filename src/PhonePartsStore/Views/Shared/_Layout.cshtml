@@ -1,0 +1,294 @@
+﻿@using Newtonsoft.Json
+@{
+    var fullName = Context.Session.GetString("FullName") ?? "Đăng nhập";
+    var isLoggedIn = !string.IsNullOrEmpty(Context.Session.GetString("FullName"));
+    var activePage = ViewData["ActivePage"] as string ?? "";
+    var cartJson = Context.Session.GetString("cart");
+    int countItem = 0;
+
+    if (!string.IsNullOrEmpty(cartJson))
+    {
+        var cart = JsonConvert.DeserializeObject<List<CartItem>>(cartJson);
+        countItem = cart.Count;
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>@ViewData["Title"] - PhoneParts</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="~/lib/animate/animate.min.css" rel="stylesheet">
+    <link href="~/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="~/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="~/css/style.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Spinner -->
+    <div id="spinner" class="show bg-white position-fixed top-50 start-50 translate-middle w-100 vh-100 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="container-fluid py-4 px-5 border-bottom bg-light">
+        <div class="row align-items-center">
+            <!-- Logo -->
+            <div class="col-md-3 text-center text-lg-start mb-3 mb-lg-0">
+                <a href="/" class="navbar-brand p-0 d-inline-flex align-items-center">
+                    <i class="fas fa-mobile-alt text-primary fs-2 me-2"></i>
+                    <h1 class="m-0 fw-bold text-dark">PhoneParts</h1>
+                </a>
+            </div>
+
+            <!-- Search bar -->
+            <div class="col-md-6 mb-3 mb-lg-0">
+                <form class="d-flex shadow-sm rounded-pill overflow-hidden">
+                    <input class="form-control border-0 ps-4 py-3" type="text" placeholder="Tìm kiếm linh kiện, phụ kiện bạn cần...">
+                    <select class="form-select border-0 border-start rounded-0 py-3 px-3 text-muted" style="max-width: 180px;">
+                        <option>Tất cả danh mục</option>
+                        <option>Cáp & Sạc</option>
+                        <option>Ốp lưng & Bao da</option>
+                        <option>Tai nghe & Loa</option>
+                        <option>Pin dự phòng</option>
+                        <option>Miếng dán & Màn hình</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary px-4 rounded-0">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Icons -->
+            <div class="col-md-3 text-center text-lg-end">
+                <div class="d-inline-flex align-items-center">
+                    <a href="#" class="btn btn-light rounded-circle border me-2">
+                        <i class="fas fa-random text-primary"></i>
+                    </a>
+                    <a href="#" class="btn btn-light rounded-circle border me-2">
+                        <i class="fas fa-heart text-danger"></i>
+                    </a>
+                    <a asp-controller="Cart" asp-action="Index" class="text-muted position-relative me-2">
+                        <span class="rounded-circle btn-md-square border">
+                            <i class="fas fa-shopping-cart"></i>
+                        </span>
+                        @if (countItem > 0)
+                        {
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                @countItem
+                            </span>
+                        }
+                    </a>
+
+                    <a asp-controller="@((isLoggedIn) ? "Home" : "SignIn")"
+                       asp-action="@((isLoggedIn) ? "Profile" : "Index")"
+                       class="btn btn-light rounded-circle border me-2"
+                       data-bs-toggle="tooltip" data-bs-placement="bottom" title="@fullName">
+                        <i class="fas fa-user text-dark"></i>
+                    </a>
+                    @if (isLoggedIn)
+                    {
+                        <a asp-controller="SignIn" asp-action="Logout" class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary px-4 py-2">
+        <a href="/" class="navbar-brand d-lg-none">
+            <h1 class="h4 text-white m-0">
+                <i class="fas fa-mobile-alt me-2"></i>PhoneParts
+            </h1>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="fa fa-bars text-white"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav mx-auto fs-5 fw-semibold">
+                <a asp-controller="Home" asp-action="Index"
+                   class="nav-item nav-link px-4 py-3 @(activePage == "Home" ? "active text-white border-bottom border-2 border-light" : "text-white-50")">
+                    Trang chủ
+                </a>
+
+                <a asp-controller="Shop" asp-action="Index"
+                   class="nav-item nav-link px-4 py-3 @(activePage == "Product" ? "active text-white border-bottom border-2 border-light" : "text-white-50")">
+                    Cửa hàng
+                </a>
+
+                <a asp-controller="Contact" asp-action="Index"
+                   class="nav-item nav-link px-4 py-3 @(activePage == "Contact" ? "active text-white border-bottom border-2 border-light" : "text-white-50")">
+                    Liên hệ
+                </a>
+            </div>
+
+            <a href="tel:01234567890"
+               class="btn btn-outline-light rounded-pill py-3 px-5 fw-semibold fs-6 shadow-sm ms-lg-3">
+                <i class="fa fa-phone-alt me-2"></i>0123 456 789
+            </a>
+        </div>
+
+    </nav>
+
+
+
+
+    @RenderBody()
+
+
+    <div class="container-fluid footer py-5 wow fadeIn" data-wow-delay="0.2s">
+        <div class="container py-5">
+            <div class="row g-4 rounded mb-5" style="background: rgba(255, 255, 255, .03);">
+                <div class="col-md-6 col-lg-6 col-xl-3">
+                    <div class="rounded p-4">
+                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mb-4"
+                            style="width: 70px; height: 70px;">
+                            <i class="fas fa-map-marker-alt fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white">Mã sinh viên:</h4>
+                            <p class="mb-2"> 170122395</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6 col-xl-3">
+                    <div class="rounded p-4">
+                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mb-4"
+                            style="width: 70px; height: 70px;">
+                            <i class="fas fa-envelope fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white">Email</h4>
+                            <p class="mb-2">ducln250793@tvu-onschool.edu.vn</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6 col-xl-3">
+                    <div class="rounded p-4">
+                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mb-4"
+                            style="width: 70px; height: 70px;">
+                            <i class="fa fa-phone-alt fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white">Hotline</h4>
+                            <p class="mb-2">(+84) 971 592 157</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6 col-xl-3">
+                    <div class="rounded p-4">
+                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mb-4"
+                            style="width: 70px; height: 70px;">
+                            <i class="fab fa-chrome fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white">Website</h4>
+                            <p class="mb-2">www.phoneparts.vn</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-5">
+                <div class="col-md-6 col-lg-6 col-xl-3">
+                    <div class="footer-item d-flex flex-column">
+                        <h4 class="text-primary mb-4">Đăng ký nhận tin</h4>
+                        <p class="mb-3">Nhận thông báo khuyến mãi và sản phẩm mới nhất từ PhoneParts.</p>
+                        <div class="position-relative mx-auto rounded-pill">
+                            <input class="form-control rounded-pill w-100 py-3 ps-4 pe-5" type="text"
+                                placeholder="Nhập email">
+                            <button type="button"
+                                class="btn btn-primary rounded-pill position-absolute top-0 end-0 py-2 mt-2 me-2">
+                                Đăng ký
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-6 col-xl-3">
+                    <div class="footer-item d-flex flex-column">
+                        <h4 class="text-primary mb-4">Hỗ trợ khách hàng</h4>
+                        <a href="#"><i class="fas fa-angle-right me-2"></i> Liên hệ</a>
+                        <a href="#"><i class="fas fa-angle-right me-2"></i> Chính sách đổi trả</a>
+                        <a href="#"><i class="fas fa-angle-right me-2"></i> Lịch sử đơn hàng</a>
+                        <a href="#"><i class="fas fa-angle-right me-2"></i> Hướng dẫn mua hàng</a>
+                        <a href="#"><i class="fas fa-angle-right me-2"></i> Tài khoản của tôi</a>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-6 col-xl-3">
+                    <div class="footer-item d-flex flex-column">
+                        <h4 class="text-primary mb-4">Thông tin</h4>
+                        <a href="#"><i class="fas fa-angle-right me-2"></i> Giới thiệu</a>
+                        <a href="#"><i class="fas fa-angle-right me-2"></i> Chính sách giao hàng</a>
+                        <a href="#"><i class="fas fa-angle-right me-2"></i> Bảo mật thông tin</a>
+                        <a href="#"><i class="fas fa-angle-right me-2"></i> Điều khoản sử dụng</a>
+                        <a href="#"><i class="fas fa-angle-right me-2"></i> Bảo hành & đổi trả</a>
+                        <a href="#"><i class="fas fa-angle-right me-2"></i> Câu hỏi thường gặp</a>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-6 col-xl-3">
+                    <div class="footer-item d-flex flex-column">
+                        <h4 class="text-primary mb-4">Liên kết khác</h4>
+                        <a href="#"><i class="fas fa-angle-right me-2"></i> Thương hiệu</a>
+                        <a href="#"><i class="fas fa-angle-right me-2"></i> Mã giảm giá</a>
+                        <a href="#"><i class="fas fa-angle-right me-2"></i> Đối tác liên kết</a>
+                        <a href="#"><i class="fas fa-angle-right me-2"></i> Sản phẩm yêu thích</a>
+                        <a href="#"><i class="fas fa-angle-right me-2"></i> Theo dõi đơn hàng</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid copyright py-4">
+        <div class="container">
+            <div class="row g-4 align-items-center">
+                <div class="col-md-6 text-center text-md-start mb-md-0">
+                    <span class="text-white">
+                        <a href="#" class="border-bottom text-white">
+                            <i class="fas fa-copyright text-light me-2"></i>PhoneParts.vn
+                        </a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="#" class="btn btn-primary btn-lg-square back-to-top"><i class="fa fa-arrow-up"></i></a>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/wow/wow.min.js"></script>
+    <script src="~/lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="~/js/main.js"></script>
+</body>
+
+</html>
